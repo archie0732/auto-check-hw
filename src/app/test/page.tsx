@@ -3,6 +3,8 @@
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
+import { AppStore } from '../../../store/app';
+
 interface ApiResponse {
   userans?: string;
   error?: string;
@@ -17,6 +19,8 @@ export default function Page() {
   const [data, setData] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { setUser, user } = AppStore();
 
   const clickButton = async () => {
     setLoading(true);
@@ -49,23 +53,31 @@ export default function Page() {
   void loading;
 
   return (
-    <div>
-      <Button onClick={() => void clickButton()}>test run cpp</Button>
-      {
-        loading && (<div>Loading .....</div>)
-      }
-      {data && (
-        <div>
-          Output:
-          {data}
-        </div>
-      )}
-      {error && (
-        <div style={{ color: 'red' }}>
-          Error:
-          {error}
-        </div>
-      )}
+    <div className="flex items-center justify-center gap-2">
+      <div className="flex flex-col">
+        <Button onClick={() => void clickButton()}>test run cpp</Button>
+        {
+          loading && (<div>Loading .....</div>)
+        }
+        {data && (
+          <div>
+            Output:
+            {data}
+          </div>
+        )}
+        {error && (
+          <div style={{ color: 'red' }}>
+            Error:
+            {error}
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col">
+        {
+          user === 'none' ? (<Button onClick={() => setUser('tester')}>set user</Button>) : <Button onClick={() => setUser('none')}>clear user</Button>
+        }
+      </div>
     </div>
   );
 }
