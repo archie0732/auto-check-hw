@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AnnoGetAPI } from './api/anno/_model/apitype';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 
 export default async function Home() {
   const res = await fetch(`${process.env.MYURL}/api/anno/get`);
@@ -13,8 +14,8 @@ export default async function Home() {
 
   return (
     <div className="mt-10 w-screen p-2">
-      <Tabs>
-        <TabsList defaultValue="anno">
+      <Tabs defaultValue="anno">
+        <TabsList>
           <TabsTrigger value="anno">公告</TabsTrigger>
           <TabsTrigger value="check">作業繳交</TabsTrigger>
         </TabsList>
@@ -26,27 +27,39 @@ export default async function Home() {
               <CardDescription>公布作業與其他通知</CardDescription>
             </CardHeader>
 
-            <span>{JSON.stringify(data.yanami[0].description)}</span>
-
             <div>
 
               {
-                data.yanami.map((d, i) =>
+                data.yanami.reverse().map((d, i) =>
                   (
-                    <div
-                      key={i}
-                      className={`
-                        group m-2 scale-100 rounded-md border p-4
-                        hover:scale-105 hover:transition-all
-                      `}
-                    >
-                      <span className="font-bold">
-                        {
-                          d.title
-                        }
-                      </span>
+                    <Link href={d.in_link === '' ? d.out_link : d.in_link} key={i}>
+                      <div
+                        className={`
+                          group m-2 scale-95 rounded-md border p-6 duration-300
+                          hover:scale-100 hover:border-3 hover:shadow-sm
+                          hover:transition-all
+                        `}
+                      >
+                        <div className="flex flex-col">
+                          <span className={`
+                            text-lg font-bold
+                            group-hover:underline
+                          `}
+                          >
+                            {
+                              d.title
+                            }
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            {d.description}
+                            {' '}
+                            ,
+                            {d.time}
+                          </span>
+                        </div>
 
-                    </div>
+                      </div>
+                    </Link>
                   ),
                 )
               }
