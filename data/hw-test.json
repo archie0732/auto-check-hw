@@ -1,0 +1,10 @@
+{
+  "name": "test hw",
+  "time": "2025-02-27",
+  "author": "archie0732",
+  "sample_input": "1 1",
+  "sample_output": "2\n",
+  "check_input": "2 3",
+  "check_output": "5\n",
+  "ans_link": "https://youtu.be/dQw4w9WgXcQ?si=lrdBeiDgmqKYvDSg"
+}
