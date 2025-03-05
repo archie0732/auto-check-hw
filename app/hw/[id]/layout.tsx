@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Page from './page';
+import { Button } from '@/components/ui/button';
 
 interface Props extends React.HtmlHTMLAttributes<HTMLDivElement> {
   params: Promise<{ id: string }>;
@@ -9,17 +10,19 @@ interface Props extends React.HtmlHTMLAttributes<HTMLDivElement> {
 const Layout: React.FC<Props> = async ({ params }) => {
   const { id } = await params;
   return (
-    <div className="container mx-auto my-8 flex flex-col gap-4">
+    <>
       <div>
-        <Link href="/hw/" className="flex items-center gap-1 text-sm">
-          <ArrowLeft size={16} />
-          <span>返回</span>
-        </Link>
+        <Button variant="ghost" asChild className="-ml-3">
+          <Link href="/hw/" className="flex items-center gap-1 text-sm">
+            <ArrowLeft size={16} />
+            <span>返回</span>
+          </Link>
+        </Button>
       </div>
       <div>
         <Page id={id} />
       </div>
-    </div>
+    </>
   );
 };
 Layout.displayName = 'HomeworkLayout';

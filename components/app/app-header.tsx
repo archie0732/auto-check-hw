@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { DarkModeButton } from '@/components/button/dark-mode';
 
 const headerOptions: { name: string; link: string }[] = [
-  { name: '成績查看', link: '/hw' },
+  { name: '作業列表', link: '/hw' },
   { name: 'API', link: '/api' },
   { name: '關於TA', link: '/ta' },
   { name: '設定', link: '/settings' },
@@ -29,7 +29,7 @@ export function AppHeader() {
   return (
     <div
       className={`
-        data-[floating]:border-border data-[floating]:bg-background/80
+        data-[floating]:border-border/40 data-[floating]:bg-background/80
         data-[floating]:backdrop-blur
         fixed top-0 right-0 left-0 z-50 flex h-16 border-b border-transparent
         px-8 py-2 transition-all

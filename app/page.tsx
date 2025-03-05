@@ -1,24 +1,7 @@
 import { AnnoGetAPI } from '@/app/api/anno/_model/apitype';
 import Link from 'next/link';
 import { Megaphone } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-
-const Header: React.FC<{
-  title: string;
-  subtitle: string;
-  icon: LucideIcon;
-}> = ({ title, subtitle, icon: Icon }) => (
-  <div className="flex items-center gap-2">
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-1 text-xl font-bold">
-        <Icon size={24} strokeWidth={2} />
-        {title}
-      </div>
-      <div className="text-muted-foreground text-sm">{subtitle}</div>
-    </div>
-  </div>
-);
-Header.displayName = 'Header';
+import Header from '@/components/common/header';
 
 export default async function Home() {
   const res = await fetch(`${process.env.MYURL}/api/anno/get`);
