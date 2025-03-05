@@ -1,11 +1,5 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 type Props = React.HtmlHTMLAttributes<HTMLDivElement>;
 
@@ -13,17 +7,10 @@ const Layout: React.FC<Props> = ({ children }) => {
   return (
     <div className="container mx-auto my-8 flex flex-col gap-4">
       <div>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Homework</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <Link href="/hw/" className="flex items-center gap-1 text-sm">
+          <ArrowLeft size={16} />
+          <span>返回</span>
+        </Link>
       </div>
       <div>{children}</div>
     </div>

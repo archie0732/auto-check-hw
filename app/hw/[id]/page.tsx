@@ -18,8 +18,6 @@ export default async function Page({ params }: Props) {
 
   const { content, detail } = await res.json() as { content: string; detail: QuestionDetailAPI };
 
-  await new Promise((r) => setTimeout(r, 5000));
-
   return (
     <div className="my-8">
       <div className="my-4 flex items-center justify-between gap-2">

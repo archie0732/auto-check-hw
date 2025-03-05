@@ -1,14 +1,11 @@
 'use client';
 
-import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { DarkModeButton } from '@/components/button/dark-mode';
 
 const headerOptions: { name: string; link: string }[] = [
-  { name: '作業繳交', link: '/' },
   { name: '成績查看', link: '/hw' },
   { name: 'API', link: '/api' },
   { name: '關於TA', link: '/ta' },
@@ -16,41 +13,45 @@ const headerOptions: { name: string; link: string }[] = [
 ];
 
 export function AppHeader() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [floating, setFloating] = useState(false);
 
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  useEffect(() => {
+    const onScroll = () => {
+      const isFloating = window.scrollY != 0;
+      if (floating != isFloating) {
+        setFloating(isFloating);
+      }
+    };
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [floating]);
 
   return (
-    <div className="relative">
-      <div className={`
-        mt-0 flex select-none items-center justify-between border p-2
+    <div
+      className={`
+        data-[floating]:border-border data-[floating]:bg-background/80
+        data-[floating]:backdrop-blur
+        fixed top-0 right-0 left-0 z-50 flex h-16 border-b border-transparent
+        px-8 py-2 transition-all
       `}
-      >
+      data-floating={floating || null}
+    >
+      <div className="flex flex-1 items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button
-            className="md:hidden"
-            onClick={toggleMobileMenu}
-            aria-label="Toggle mobile menu"
-            variant="outline"
-          >
-            {isMobileMenuOpen ? <X /> : <Menu />}
-          </Button>
-
-          <div className={`
-            hidden items-center gap-2
-            md:flex
-          `}
-          >
-            {headerOptions.map((option) => (
-              <Link href={option.link} key={option.name}>
-                <div
-                  className="p-2"
-
-                >
+          <div className="flex items-center gap-8">
+            <Link
+              href="/"
+              className="font-bold"
+            >
+              作業繳交
+            </Link>
+            <ul className="flex items-center gap-4">
+              {headerOptions.map((option) => (
+                <Link href={option.link} key={option.name}>
                   {option.name}
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </ul>
           </div>
         </div>
 
@@ -58,32 +59,6 @@ export function AppHeader() {
           <DarkModeButton />
         </div>
       </div>
-
-      {isMobileMenuOpen && (
-        <div className={`
-          absolute left-0 top-full w-full border-x border-b bg-white
-          dark:bg-black
-          md:hidden
-        `}
-        >
-          {headerOptions.map((option) => (
-            <Link
-              href={option.link}
-              key={option.name}
-              onClick={toggleMobileMenu}
-            >
-              <div className={`
-                border-t p-4
-                dark:hover:bg-gray-800
-                hover:bg-gray-100
-              `}
-              >
-                {option.name}
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

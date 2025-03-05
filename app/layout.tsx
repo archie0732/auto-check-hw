@@ -41,7 +41,7 @@ export default function RootLayout({
         >
           <div className="flex w-svw flex-1 flex-col">
             <AppHeader />
-            <div className="flex min-h-svh flex-col">
+            <div className="mt-16 flex min-h-svh flex-col">
               {children}
             </div>
             <AppFooter />

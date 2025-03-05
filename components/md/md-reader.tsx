@@ -1,9 +1,10 @@
 import RMarkdown from 'react-markdown';
 import rehypeGithubAlert from 'rehype-github-alert';
+import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import { twMerge } from 'tailwind-merge';
 
-import { BlockQuote, Code, Heading1, Heading2, Heading3, Heading4, Link } from '@/components/ui/typography';
+import { BlockQuote, Code, Heading1, Heading2, Heading3, Heading4 } from '@/components/ui/typography';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
@@ -14,7 +15,7 @@ export default function Markdown({ children }: React.ComponentPropsWithoutRef<ty
   return (
     <RMarkdown
       remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeGithubAlert]}
+      rehypePlugins={[rehypeGithubAlert, rehypeHighlight]}
       components={{
         h1: Heading1,
         h2: Heading2,
@@ -81,6 +82,14 @@ export default function Markdown({ children }: React.ComponentPropsWithoutRef<ty
         },
         blockquote: BlockQuote,
         code: Code,
+        pre({ className, ...props }: React.HTMLAttributes<HTMLPreElement>) {
+          return (
+            <pre
+              {...props}
+              className={twMerge(`rounded-md`, className)}
+            />
+          );
+        },
         img({ className, ...props }: React.HTMLAttributes<HTMLImageElement>) {
           return (
             <img
@@ -91,7 +100,7 @@ export default function Markdown({ children }: React.ComponentPropsWithoutRef<ty
         },
         table({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) {
           return (
-            <div className="my-2 block overflow-x-auto -mx-4 whitespace-nowrap">
+            <div className="-mx-4 my-2 block overflow-x-auto whitespace-nowrap">
               <Table
                 {...props}
                 className={twMerge(`
@@ -137,10 +146,10 @@ export default function Markdown({ children }: React.ComponentPropsWithoutRef<ty
             <ul
               {...props}
               className={twMerge(`
+                group-[>]/md:my-6
                 ml-6
                 [&:not(.contains-task-list)]:list-disc
                 [&>li]:mt-2
-                group-[>]/md:my-6
               `, className)}
             />
           );
@@ -150,10 +159,10 @@ export default function Markdown({ children }: React.ComponentPropsWithoutRef<ty
             <ol
               {...props}
               className={twMerge(`
+                group-[>]/md:my-6
                 ml-6
                 [&:not(.contains-task-list)]:list-decimal
                 [&>li]:mt-2
-                group-[>]/md:my-6
               `, className)}
             />
           );
@@ -164,7 +173,10 @@ export default function Markdown({ children }: React.ComponentPropsWithoutRef<ty
               ? (
                   <Checkbox
                     checked={props.checked}
-                    className="!cursor-default align-middle mr-2 disabled:opacity-100"
+                    className={`
+                      mr-2 !cursor-default align-middle
+                      disabled:opacity-100
+                    `}
                     disabled
                   />
                 )
