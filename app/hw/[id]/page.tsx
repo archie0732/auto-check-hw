@@ -1,22 +1,73 @@
-import { QuestionDetailAPI } from '@/app/api/_model/apitype';
+'use client';
+
 import Markdown from '@/components/md/md-reader';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import FileInput from '@/components/input/file';
+import { useEffect, useState } from 'react';
+import { QuestionDetailAPI } from '@/app/api/_model/apitype';
+import Loading from './loading';
+import { Button } from '@/components/ui/button';
 
 type Props = Readonly<{
-  params: Promise<{ id: string }>;
+  id: string;
 }>;
 
-export default async function Page({ params }: Props) {
-  const id = (await params).id;
-  const res = await fetch(`${process.env.MYURL}/api/md/${id}`);
+interface DataType { content: string; detail: QuestionDetailAPI }
 
-  if (!res.ok) {
-    throw new Error(`Request failed with status ${res.status}: ${await res.text()}`);
+const HandoutTab: React.FC = () => {
+  const [file, setFile] = useState<File | null>(null);
+
+  const submit = () => {
+    if (!file) return;
+
+    // TODO: code submission logic
+  };
+
+  return (
+    <TabsContent value="handout">
+      <div className="flex flex-col gap-4">
+        <FileInput extensions={['.c', '.cpp']} onSelect={setFile} />
+        {file?.name}
+        <Button onClick={submit} disabled={file == null}>提交</Button>
+      </div>
+    </TabsContent>
+  );
+};
+
+export default function Page({ id }: Props) {
+  const [data, setData] = useState<DataType | null>(null);
+  const [tabIndex, setTabIndex] = useState('detail');
+
+  useEffect(() => {
+    void (async () => {
+      const res = await fetch(`/api/md/${id}`);
+
+      if (!res.ok) {
+        throw new Error(`Request failed with status ${res.status}: ${await res.text()}`);
+      }
+
+      setData(await res.json() as DataType);
+    })();
+
+    const hash = document.location.hash;
+
+    if (!hash) return;
+    if (!['#detail', '#answer', '#handout'].includes(hash)) return;
+    setTabIndex(hash.slice(1));
+  }, []);
+
+  const onTabChange = (index: string) => {
+    setTabIndex(index);
+    document.location.hash = index;
+  };
+
+  if (!data) {
+    return <Loading />;
   }
 
-  const { content, detail } = await res.json() as { content: string; detail: QuestionDetailAPI };
+  const { content, detail } = data;
 
   return (
     <div className="my-8">
@@ -43,14 +94,14 @@ export default async function Page({ params }: Props) {
           />
         </div>
       </div>
-      <Tabs defaultValue="question">
+      <Tabs value={tabIndex} onValueChange={onTabChange}>
         <TabsList>
-          <TabsTrigger value="question">題目</TabsTrigger>
+          <TabsTrigger value="detail">題目</TabsTrigger>
           <TabsTrigger value="answer">解答</TabsTrigger>
           <TabsTrigger value="handout">提交</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="question">
+        <TabsContent value="detail">
           <Markdown>{content}</Markdown>
         </TabsContent>
 
@@ -62,14 +113,7 @@ export default async function Page({ params }: Props) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="handout">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">作業繳交結果</CardTitle>
-              <CardDescription>{detail.name}</CardDescription>
-            </CardHeader>
-          </Card>
-        </TabsContent>
+        <HandoutTab />
       </Tabs>
     </div>
   );

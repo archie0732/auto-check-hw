@@ -32,7 +32,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const result = await runCpp(code, input);
 
     if (result.run.stderr) {
-      return NextResponse.json({ error: 'Compilation or runtime error', stderr: result.run.stderr }, { status: 400 });
+      return NextResponse.json({ error: 'Compilation or runtime error', stderr: result.run.stderr });
     }
 
     return NextResponse.json({ userans: result.run.stdout.trim() });

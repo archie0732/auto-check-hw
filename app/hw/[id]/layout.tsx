@@ -1,9 +1,13 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import Page from './page';
 
-type Props = React.HtmlHTMLAttributes<HTMLDivElement>;
+interface Props extends React.HtmlHTMLAttributes<HTMLDivElement> {
+  params: Promise<{ id: string }>;
+};
 
-const Layout: React.FC<Props> = ({ children }) => {
+const Layout: React.FC<Props> = async ({ params }) => {
+  const { id } = await params;
   return (
     <div className="container mx-auto my-8 flex flex-col gap-4">
       <div>
@@ -12,7 +16,9 @@ const Layout: React.FC<Props> = ({ children }) => {
           <span>返回</span>
         </Link>
       </div>
-      <div>{children}</div>
+      <div>
+        <Page id={id} />
+      </div>
     </div>
   );
 };
