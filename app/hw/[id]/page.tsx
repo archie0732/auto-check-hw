@@ -42,9 +42,9 @@ const HandoutTab: React.FC = () => {
       >
         <div className="flex flex-col gap-4">
           <FileInput extensions={['.c', '.cpp']} onSelect={onFileSelect} />
-          <pre className="overflow-x-auto text-sm whitespace-pre">
-            {fileContent}
-          </pre>
+          <Markdown>
+            {`\`\`\`cpp\n${fileContent}\n\`\`\``}
+          </Markdown>
         </div>
         <div className="flex flex-col gap-4">
           <Button onClick={submit} disabled={file == null}>提交</Button>

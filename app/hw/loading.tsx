@@ -4,7 +4,7 @@ import { NotebookPen } from 'lucide-react';
 
 const Loading: React.FC = () => {
   return (
-    <div className="container mx-auto my-8 flex flex-col gap-4">
+    <>
       <Header title="作業列表" subtitle="所有作業都在這邊" icon={NotebookPen} />
       <div className="flex flex-col gap-2">
         {[7, 5, 6, 8, 6, 9, 4, 5].map((v, i) => (
@@ -13,7 +13,7 @@ const Loading: React.FC = () => {
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 };
 Loading.displayName = 'HomeworkListLoading';

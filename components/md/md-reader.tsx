@@ -4,7 +4,7 @@ import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import { twMerge } from 'tailwind-merge';
 
-import { BlockQuote, Code, Heading1, Heading2, Heading3, Heading4 } from '@/components/ui/typography';
+import { BlockQuote, Heading1, Heading2, Heading3, Heading4 } from '@/components/ui/typography';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
@@ -81,12 +81,14 @@ export default function Markdown({ children }: React.ComponentPropsWithoutRef<ty
           );
         },
         blockquote: BlockQuote,
-        code: Code,
         pre({ className, ...props }: React.HTMLAttributes<HTMLPreElement>) {
           return (
             <pre
               {...props}
-              className={twMerge(`rounded-md`, className)}
+              className={twMerge(`
+                muted outline-border/40 rounded-lg bg-zinc-500/10 px-4 py-3
+                outline
+              `, className)}
             />
           );
         },
