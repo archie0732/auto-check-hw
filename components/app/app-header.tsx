@@ -8,7 +8,7 @@ import { DarkModeButton } from '@/components/button/dark-mode';
 const headerOptions: { name: string; link: string }[] = [
   { name: '作業列表', link: '/hw' },
   { name: 'API', link: '/api' },
-  { name: '關於TA', link: '/ta' },
+  { name: '關於', link: '/about' },
   { name: '設定', link: '/settings' },
 ];
 
