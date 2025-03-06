@@ -13,7 +13,7 @@ export default async function Page() {
   const hw = await res.json() as QuestionDetailAPI[];
 
   return (
-    <div className="container mx-auto my-8 flex flex-col gap-4">
+    <>
       <Header title="作業列表" subtitle="所有作業都在這邊" icon={NotebookPen} />
       <div className="flex flex-col gap-2">
         {hw.map((v) => (
@@ -22,6 +22,6 @@ export default async function Page() {
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 }

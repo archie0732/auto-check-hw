@@ -63,8 +63,10 @@ const FileInput: React.FC<FileInputProps> = ({ extensions = [], disabled = false
       data-disabled={disabled || null}
       className={`
         data-[invalid]:outline-destructive data-[invalid]:bg-destructive/[.08]
-        data-[dragging]:outline-primary data-[dragging]:outline-4
-        border-spacing-2 rounded-2xl p-8 outline-2 outline-dashed
+        data-[dragging]:outline-primary data-[dragging]:bg-primary/[0.08]
+        data-[dragging]:outline-4
+        border-spacing-2 rounded-2xl p-8 outline-2 transition-colors
+        outline-dashed
         data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40
       `}
     >

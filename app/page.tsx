@@ -13,7 +13,7 @@ export default async function Home() {
   const data = await res.json() as AnnoGetAPI;
 
   return (
-    <div className="container mx-auto my-8 flex flex-col gap-4">
+    <div className="container mx-auto my-8 flex flex-col gap-4 px-4">
       <Header title="公告" subtitle="公布作業與其他通知" icon={Megaphone} />
       <div className="flex flex-col gap-4">
         {

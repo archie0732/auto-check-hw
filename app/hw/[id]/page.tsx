@@ -18,6 +18,14 @@ interface DataType { content: string; detail: QuestionDetailAPI }
 
 const HandoutTab: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [fileContent, setFileContent] = useState('');
+
+  const onFileSelect = (file: File) => {
+    setFile(file);
+    file.text()
+      .then((v) => setFileContent(v))
+      .catch(console.error);
+  };
 
   const submit = () => {
     if (!file) return;
@@ -27,10 +35,24 @@ const HandoutTab: React.FC = () => {
 
   return (
     <TabsContent value="handout">
-      <div className="flex flex-col gap-4">
-        <FileInput extensions={['.c', '.cpp']} onSelect={setFile} />
-        {file?.name}
-        <Button onClick={submit} disabled={file == null}>提交</Button>
+      <div className={`
+        flex flex-col gap-8
+        md:grid md:grid-cols-[2fr_1fr]
+      `}
+      >
+        <div className="flex flex-col gap-4">
+          <FileInput extensions={['.c', '.cpp']} onSelect={onFileSelect} />
+          <pre className="overflow-x-auto text-sm whitespace-pre">
+            {fileContent}
+          </pre>
+        </div>
+        <div className="flex flex-col gap-4">
+          <Button onClick={submit} disabled={file == null}>提交</Button>
+          <div>
+            已選擇檔案：
+            {file?.name}
+          </div>
+        </div>
       </div>
     </TabsContent>
   );
