@@ -1,4 +1,4 @@
-import { fetchRemoteData } from '../_model/_lib/utils';
+import { fetchRemoteData } from '../../_model/_lib/utils';
 import { AnnoGetAPI } from '../_model/apitype';
 
 export const GET = async () => {

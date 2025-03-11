@@ -2,17 +2,35 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface AppStoreState {
-  user: string;
+  userID: string;
+  avatar: string;
+  username: string;
 
-  setUser(this: void, name: string): void;
+  setUserID(this: void, name: string): void;
+  setAvatar(this: void, url: string): void;
+  setUserName(this: void, username: string): void;
 }
 
 export const AppStore = create(persist<AppStoreState>(
   (set) => ({
-    user: 'none',
-    setUser(name) {
+    userID: 'none',
+    avatar: '',
+    username: '',
+
+    setUserID(name) {
       set({
-        user: name,
+        userID: name,
+      });
+    },
+
+    setAvatar(url) {
+      set({
+        avatar: url,
+      });
+    },
+    setUserName(username) {
+      set({
+        username: username,
       });
     },
   }), {

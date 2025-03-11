@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/app/theme-provider';
 import { AppHeader } from '@/components/app/app-header';
 import { AppFooter } from '@/components/app/app-footer';
+import { Toaster } from '@/components/ui/sonner';
 
 import '@/app/globals.css';
 import '@/app/highlight.css';
@@ -44,6 +45,7 @@ export default function RootLayout({
             <AppHeader />
             <div className="mt-16 flex min-h-svh flex-col">
               {children}
+              <Toaster />
             </div>
             <AppFooter />
           </div>

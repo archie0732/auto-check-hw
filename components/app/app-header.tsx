@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { DarkModeButton } from '@/components/button/dark-mode';
+import { LoginButton } from './login-button';
 
 const headerOptions: { name: string; link: string }[] = [
   { name: '作業列表', link: '/hw' },
@@ -56,6 +57,7 @@ export function AppHeader() {
         </div>
 
         <div className="flex gap-2">
+          <LoginButton />
           <DarkModeButton />
         </div>
       </div>

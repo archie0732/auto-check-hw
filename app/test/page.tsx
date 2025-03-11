@@ -20,7 +20,7 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { setUser, user } = AppStore();
+  const { setUserID, userID, setAvatar } = AppStore();
 
   const clickButton = async () => {
     setLoading(true);
@@ -75,8 +75,12 @@ export default function Page() {
 
       <div className="flex flex-col">
         {
-          user === 'none' ? (<Button onClick={() => setUser('tester')}>set user</Button>) : <Button onClick={() => setUser('none')}>clear user</Button>
+          userID === 'none' ? (<Button onClick={() => setUserID('archie0732')}>set user</Button>) : <Button onClick={() => setUserID('none')}>clear user</Button>
         }
+      </div>
+
+      <div>
+        <Button onClick={() => setAvatar('https://i.pinimg.com/550x/76/54/ef/7654efd01209b2189806bc6cc81ed2c3.jpg')}>set avatar</Button>
       </div>
     </div>
   );

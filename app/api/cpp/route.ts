@@ -9,7 +9,7 @@ interface CppRequestBody {
   input: string;
 }
 
-interface PistonResponse {
+export interface PistonResponse {
   language: string;
   version: string;
   run: {
