@@ -48,8 +48,9 @@ export function EditProfileButton({ profileID }: Props) {
     <Dialog>
       <DialogTrigger disabled={profileID !== userID}>
         <div className={`
-          mt-5 rounded-lg border bg-gray-900
-          hover:bg-gray-800
+          mt-5 rounded-lg border
+          hover:bg-gray-300
+          dark:bg-gray-900 dark:hover:bg-gray-800
         `}
         >
           編輯

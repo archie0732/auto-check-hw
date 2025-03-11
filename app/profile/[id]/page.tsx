@@ -39,8 +39,8 @@ export default async function Page({ params }: Props) {
               <EditProfileButton profileID={id} />
             </div>
             <div className={`
-              flex flex-grow flex-col rounded-lg border-2 border-gray-500
-              bg-gray-800 p-4
+              flex flex-grow flex-col rounded-lg border-2 p-4
+              dark:border-gray-500 dark:bg-gray-800
             `}
             >
               <div className="flex justify-between">
@@ -56,8 +56,16 @@ export default async function Page({ params }: Props) {
 
           <div className="mt-3">
             <h2 className="mb-2 text-xl font-bold">作業繳交狀況</h2>
-            <div className="overflow-x-auto rounded-lg bg-gray-800 p-4">
-              <table className="min-w-full text-center text-sm text-white">
+            <div className={`
+              overflow-x-auto rounded-lg p-4
+              dark:bg-gray-800
+            `}
+            >
+              <table className={`
+                min-w-full text-center text-sm
+                dark:text-white
+              `}
+              >
                 <thead>
                   <tr>
                     {profile.student.hw.map((_, index) => (

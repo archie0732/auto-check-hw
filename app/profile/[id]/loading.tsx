@@ -16,26 +16,24 @@ export default function Loading() {
               />
               <Skeleton className="mt-2 gap-2 text-center text-2xl font-bold" />
 
-              <Skeleton />
             </div>
             <div className={`
-              flex flex-grow flex-col rounded-lg border-2 border-gray-500
-              bg-gray-800 p-4
+              flex flex-grow flex-col rounded-lg border-2 border-gray-500 p-4
+              dark:bg-gray-800
             `}
             >
-              <div className="flex justify-between">
-                <span className="flex text-lg font-semibold">
-                  Introduce
-                </span>
-                <Skeleton />
-              </div>
+              <div className="flex justify-between" />
               <p className="mt-2 text-gray-500" />
             </div>
           </div>
 
           <div className="mt-3">
             <h2 className="mb-2 text-xl font-bold">作業繳交狀況</h2>
-            <div className="overflow-x-auto rounded-lg bg-gray-800 p-4">
+            <div className={`
+              overflow-x-auto rounded-lg p-4
+              dark:bg-gray-800
+            `}
+            >
               <table className="min-w-full text-center text-sm text-white">
                 <thead>
                 </thead>
