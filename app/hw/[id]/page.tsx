@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { AppStore } from '@/store/app';
 import { StudentProfileData } from '@/app/api/profile/_model/apitype';
-import { CheckCheck } from 'lucide-react';
+import { CheckCheck, Loader2 } from 'lucide-react';
 
 type Props = Readonly<{
   id: string;
@@ -26,6 +26,7 @@ const HandoutTab: React.FC<HandoutData> = ({ id }) => {
   const [fileContent, setFileContent] = useState('');
   const [isSubmit, setSubmit] = useState<string>('');
   const [questionDetail, setQuestiondetail] = useState<QuestionDetailData>();
+  const [loading, setLoading] = useState(false);
 
   const { userID } = AppStore();
 
@@ -45,7 +46,9 @@ const HandoutTab: React.FC<HandoutData> = ({ id }) => {
     if (!questionDetail) return;
 
     const checkHW = async () => {
+      setLoading(true);
       if (userID === 'none') {
+        setLoading(false);
         throw new Error('您尚未登入!');
       }
 
@@ -55,26 +58,31 @@ const HandoutTab: React.FC<HandoutData> = ({ id }) => {
 
       if (!res.ok) {
         toast.error('發生錯誤，可能是你的檔案編碼問題或是副檔名錯誤(只支援utf-8，ascii code 不支援!)');
+        setLoading(false);
         throw new Error(`check hw error ${await (res.json())}`);
       }
 
       const receive = await res.json() as CheckHWResultData;
 
       if (receive.error) {
+        setLoading(false);
         throw new Error(receive.error);
       }
 
       if (JSON.stringify(questionDetail.detail.check_output.trim()) != JSON.stringify(receive.userans)) {
+        setLoading(false);
         throw new Error('輸出答案錯誤');
       }
       // check hw
       const uploadResult = await fetch(`/api/profile/${userID}/update`, { method: 'POST', body: JSON.stringify({ type: 'hw', hw: questionDetail.detail.id, uploadData: '' }) });
 
       if (!uploadResult.ok) {
+        setLoading(false);
         throw new Error(uploadResult.statusText);
       }
 
       setSubmit('1');
+      setLoading(false);
     };
 
     toast.promise(checkHW, {
@@ -126,7 +134,15 @@ const HandoutTab: React.FC<HandoutData> = ({ id }) => {
                   已完成本作業
                 </Button>
               )
-            : <Button onClick={() => void submit()} disabled={file == null}>提交</Button>}
+            : (
+                <Button onClick={() => void submit()} disabled={file == null || loading}>
+                  {loading
+                    ? (
+                        <Loader2 className="animate-spin" />
+                      )
+                    : '提交'}
+                </Button>
+              )}
           <div>
             已選擇檔案：
             {file?.name}
