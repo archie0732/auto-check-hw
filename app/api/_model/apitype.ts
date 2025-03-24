@@ -43,6 +43,12 @@ export interface AutoCheckAPI {
     description: string;
     time: string;
   }[];
+  hw_list:
+  {
+    title: string;
+    link: string;
+    id: number;
+  }[];
   test: string;
   student:
   {
@@ -53,3 +59,11 @@ export interface AutoCheckAPI {
     hw: string[];
   }[];
 }
+
+export interface HWList {
+  yannami: {
+    title: string;
+    link: string;
+    id: number;
+  }[];
+};
