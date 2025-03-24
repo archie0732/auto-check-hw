@@ -1,4 +1,6 @@
-type Props = React.HtmlHTMLAttributes<HTMLDivElement>;
+type Props = Readonly<{
+  children: React.ReactNode;
+}>;
 
 const Layout: React.FC<Props> = ({ children }) => {
   return (

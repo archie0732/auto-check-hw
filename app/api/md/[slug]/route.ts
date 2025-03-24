@@ -7,7 +7,7 @@ type Params = Readonly<{
   params: Promise<{ slug: string }>;
 }>;
 
-export function getFile(slug: string) {
+function getFile(slug: string) {
   const dataFolder = resolve('data', slug);
 
   if (!existsSync(dataFolder)) {

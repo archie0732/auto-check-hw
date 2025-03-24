@@ -7,16 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FileInput from '@/components/input/file';
 import { useEffect, useState } from 'react';
 import { CheckHWResultData, QuestionDetailAPI, QuestionDetailData } from '@/app/api/_model/apitype';
-import Loading from './loading';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { AppStore } from '@/store/app';
 import { StudentProfileData } from '@/app/api/profile/_model/apitype';
 import { CheckCheck, Loader2 } from 'lucide-react';
-
-type Props = Readonly<{
-  id: string;
-}>;
 
 interface DataType { content: string; detail: QuestionDetailAPI }
 interface HandoutData { id: string }
@@ -153,36 +148,20 @@ const HandoutTab: React.FC<HandoutData> = ({ id }) => {
   );
 };
 
-export default function Page({ id }: Props) {
-  const [data, setData] = useState<DataType | null>(null);
-  const [tabIndex, setTabIndex] = useState('detail');
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
-  useEffect(() => {
-    void (async () => {
-      const res = await fetch(`/api/md/${id}`);
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
 
-      if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}: ${await res.text()}`);
-      }
+  const res = await fetch(`/api/md/${id}`);
 
-      setData(await res.json() as DataType);
-    })();
-
-    const hash = document.location.hash;
-
-    if (!hash) return;
-    if (!['#detail', '#answer', '#handout'].includes(hash)) return;
-    setTabIndex(hash.slice(1));
-  }, []);
-
-  const onTabChange = (index: string) => {
-    setTabIndex(index);
-    document.location.hash = index;
-  };
-
-  if (!data) {
-    return <Loading />;
+  if (!res.ok) {
+    throw new Error(`Request failed with status ${res.status}: ${await res.text()}`);
   }
+
+  const data = await res.json() as DataType;
 
   const { content, detail } = data;
 
@@ -211,7 +190,7 @@ export default function Page({ id }: Props) {
           />
         </div>
       </div>
-      <Tabs value={tabIndex} onValueChange={onTabChange}>
+      <Tabs defaultValue="detail">
         <TabsList>
           <TabsTrigger value="detail">題目</TabsTrigger>
           <TabsTrigger value="answer">解答</TabsTrigger>

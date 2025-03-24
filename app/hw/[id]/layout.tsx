@@ -1,14 +1,12 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import Page from './page';
 import { Button } from '@/components/ui/button';
 
-interface Props extends React.HtmlHTMLAttributes<HTMLDivElement> {
-  params: Promise<{ id: string }>;
-};
+type Props = Readonly<{
+  children: React.ReactNode;
+}>;
 
-const Layout: React.FC<Props> = async ({ params }) => {
-  const { id } = await params;
+const Layout: React.FC<Props> = ({ children }) => {
   return (
     <>
       <div>
@@ -20,7 +18,7 @@ const Layout: React.FC<Props> = async ({ params }) => {
         </Button>
       </div>
       <div>
-        <Page id={id} />
+        {children}
       </div>
     </>
   );
