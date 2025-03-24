@@ -87,6 +87,8 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
 
       if (JSON.stringify(questionDetail.detail.check_output.trim()) != JSON.stringify(receive.userans)) {
         setLoading(false);
+        console.log('sample: ', JSON.stringify(questionDetail.detail.check_output.trim()));
+        console.log('user:', JSON.stringify(receive.userans));
         throw new Error('輸出答案錯誤');
       }
       // check hw
@@ -129,17 +131,15 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
                   已完成本作業
                 </Button>
               )
-            : isSubmit === '2'
-              ? (
-                  <Button onClick={() => void submit()} disabled={file == null || loading}>
-                    {loading
-                      ? (
-                          <Loader2 className="animate-spin" />
-                        )
-                      : '提交'}
-                  </Button>
-                )
-              : (<Button disabled>讀取中</Button>)}
+            : (
+                <Button onClick={() => void submit()} disabled={file == null || loading}>
+                  {loading
+                    ? (
+                        <Loader2 className="animate-spin" />
+                      )
+                    : '提交'}
+                </Button>
+              )}
           <div>
             已選擇檔案：
             {file?.name}
