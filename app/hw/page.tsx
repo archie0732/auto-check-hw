@@ -3,6 +3,8 @@ import { QuestionDetailAPI } from '../api/_model/apitype';
 import Header from '@/components/common/header';
 import { NotebookPen } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const res = await fetch(`${process.env.MYURL}/api/md`);
 

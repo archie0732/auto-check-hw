@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Megaphone } from 'lucide-react';
 import Header from '@/components/common/header';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const res = await fetch(`${process.env.MYURL}/api/anno/get`);
 

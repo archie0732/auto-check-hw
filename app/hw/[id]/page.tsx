@@ -1,5 +1,6 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
 import Markdown from '@/components/md/md-reader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -155,7 +156,7 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
 
-  const res = await fetch(`/api/md/${id}`);
+  const res = await fetch(`${process.env.MYURL}/api/md/${id}`);
 
   if (!res.ok) {
     throw new Error(`Request failed with status ${res.status}: ${await res.text()}`);
