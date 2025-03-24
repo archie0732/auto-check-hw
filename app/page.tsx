@@ -12,6 +12,8 @@ export default async function Home() {
     throw new Error('fetch anno error');
   }
 
+  void res;
+
   const data = await res.json() as AnnoGetAPI;
 
   return (
