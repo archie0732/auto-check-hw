@@ -45,7 +45,7 @@ export async function updateGitHubFile(content: string, sha: string | null, FILE
   }
   catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      console.error('GitHub API error:', error.response?.data || error.message);
+      console.error('GitHub API error:', error.response?.data ?? error.message);
     }
     else {
       console.error('unknow error:', error);
