@@ -9,6 +9,7 @@ import FileInput from '@/components/input/file';
 import Markdown from '../md/md-reader';
 import { Button } from '../ui/button';
 import { CheckCheck, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface HandoutData { id: string }
 
@@ -20,6 +21,7 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
   const [loading, setLoading] = useState(false);
 
   const { userID } = AppStore();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,6 +64,9 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
     if (!questionDetail) return;
 
     const checkHW = async () => {
+      const time = new Date();
+      const now = `${time.getFullYear()}/${time.getMonth() + 1}/${time.getDate()} ${time.getHours()}:${time.getMinutes()}\n`;
+      const encodeTime = Buffer.from(now, 'utf-8').toString('base64');
       setLoading(true);
       if (userID === 'none') {
         setLoading(false);
@@ -87,8 +92,9 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
 
       if (JSON.stringify(questionDetail.detail.check_output.trim()) != JSON.stringify(receive.userans)) {
         setLoading(false);
-        console.log('sample: ', JSON.stringify(questionDetail.detail.check_output.trim()));
-        console.log('user:', JSON.stringify(receive.userans));
+        // console.log('sample: ', JSON.stringify(questionDetail.detail.check_output.trim()));
+        // console.log('user:', JSON.stringify(receive.userans));
+        router.push(`/result?t=${encodeTime}&token=${Buffer.from(JSON.stringify(receive.userans ?? ''), 'utf-8').toString('base64')}&et=${Buffer.from(JSON.stringify(content), 'utf-8').toString('base64')}`);
         throw new Error('輸出答案錯誤');
       }
       // check hw
@@ -101,6 +107,7 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
 
       setSubmit('1');
       setLoading(false);
+      router.push(`/result?t=su&token=${encodeTime}`);
     };
 
     toast.promise(checkHW, {
