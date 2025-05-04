@@ -8,7 +8,7 @@ import { LoginButton } from './login-button';
 
 const headerOptions: { name: string; link: string }[] = [
   { name: '作業列表', link: '/hw' },
-  { name: 'API', link: '/api' },
+  { name: 'Commands', link: '/command' },
   { name: '關於', link: '/about' },
   { name: '設定', link: '/settings' },
 ];

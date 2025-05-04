@@ -92,11 +92,11 @@ export default async function Page({ params }: Props) {
                         <Link href={index === 0 ? '/hw/hw-test' : `/hw/hw${index}`}>
                           {status === '1'
                             ? (
-                                <CheckCircle className={`
+                              <CheckCircle className={`
                                   mx-auto h-5 w-5 text-green-400
                                 `}
-                                />
-                              )
+                              />
+                            )
                             : <XCircle className="mx-auto h-5 w-5 text-red-400" />}
                         </Link>
                       </td>

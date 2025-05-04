@@ -22,34 +22,34 @@ export default async function Home() {
       <div className="flex flex-col gap-4">
         {
           data.yanami.reverse().map((d, i) =>
-            (
-              <Link href={d.in_link === '' ? d.out_link : d.in_link} key={i}>
-                <div
-                  className={`
+          (
+            <Link href={d.in_link === '' ? d.out_link : d.in_link} key={i}>
+              <div
+                className={`
                     group scale-99 rounded-lg border p-6 transition-all
                     hover:scale-100 hover:shadow-md
                   `}
-                >
-                  <div className="flex flex-col">
-                    <span className={`
+              >
+                <div className="flex flex-col">
+                  <span className={`
                       text-lg font-bold
                       group-hover:underline
                     `}
-                    >
-                      {
-                        d.title
-                      }
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {d.description}
-                      {' '}
-                      ,
-                      {d.time}
-                    </span>
-                  </div>
+                  >
+                    {
+                      d.title
+                    }
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {d.description}
+                    {' '}
+                    ,
+                    {d.time}
+                  </span>
                 </div>
-              </Link>
-            ),
+              </div>
+            </Link>
+          ),
           )
         }
       </div>
