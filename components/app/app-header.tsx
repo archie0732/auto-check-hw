@@ -9,7 +9,7 @@ import { LoginButton } from './login-button';
 const headerOptions: { name: string; link: string }[] = [
   { name: '作業列表', link: '/hw' },
   { name: 'Commands', link: '/command' },
-  { name: '關於', link: '/about' },
+  { name: '關於TA', link: '/about-ta' },
   { name: '設定', link: '/settings' },
 ];
 
