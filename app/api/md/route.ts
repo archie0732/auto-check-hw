@@ -1,11 +1,40 @@
-import { fetchRemoteData } from '../_model/_lib/utils';
+import { createGitHubAPI } from '@/lib/github';
+import { 
+  createSuccessResponse, 
+  createInternalErrorResponse,
+  validateEnvVars 
+} from '@/lib/api-utils';
 
 export const GET = async () => {
-  const { content } = await fetchRemoteData('data/auto-check.json');
+  try {
+    const missingVars = validateEnvVars(['AUTOCHECKAPI_GITHUB', 'GITHUB_REPO_OWNER', 'GITHUB_REPO_NAME', 'SEMESTER']);
+    if (missingVars.length > 0) {
+      return createInternalErrorResponse(
+        new Error(`Missing environment variables: ${missingVars.join(', ')}`)
+      );
+    }
 
-  if (!content) {
-    return Response.json({ conetent: 'fetch data error' }, { status: 500 });
+    const github = createGitHubAPI();
+    const semester = process.env.SEMESTER;
+    
+    const contents = await github.getDirectoryContents(`hw/${semester}`);
+    
+    const folders = contents.filter((item: any) => item.type === 'dir');
+    
+    const folderNames = folders.map((folder: any) => folder.name);
+
+    return createSuccessResponse({
+      semester: semester,
+      hw_list: folderNames,
+      count: folderNames.length
+    });
+  } catch (error) {
+    return createInternalErrorResponse(error);
   }
-
-  return Response.json({ yannami: content.hw_list }, { status: 200 });
 };
+
+export interface HwList {
+  semester: string;
+  hw_list: string[];
+  count: number;
+}

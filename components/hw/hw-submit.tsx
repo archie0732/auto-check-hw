@@ -1,6 +1,4 @@
 'use client';
-import { CheckHWResultData, QuestionDetailData } from '@/app/api/_model/apitype';
-import { StudentProfileData } from '@/app/api/profile/_model/apitype';
 import { AppStore } from '@/store/app';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -13,11 +11,42 @@ import { useRouter } from 'next/navigation';
 
 interface HandoutData { id: string }
 
+interface HwDetailData {
+  content: string;
+  detail: {
+    name: string;
+    time: string;
+    id: number;
+    author: string;
+    sample_input: string;
+    sample_output: string;
+    check_input: string;
+    check_output: string;
+    ans_link: string;
+    slug: string;
+    url: string;
+  };
+}
+
+interface StudentData {
+  id: string;
+  intro: string;
+  avatar: string;
+  hw: string[];
+  name: string;
+  root: boolean;
+}
+
+interface CheckHWResultData {
+  userans?: string;
+  error?: string;
+}
+
 export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
   const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState('');
   const [isSubmit, setSubmit] = useState<string>('');
-  const [questionDetail, setQuestiondetail] = useState<QuestionDetailData>();
+  const [questionDetail, setQuestiondetail] = useState<HwDetailData>();
   const [loading, setLoading] = useState(false);
 
   const { userID } = AppStore();
@@ -25,12 +54,20 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`/api/md/${id}`);
-      if (!res.ok) {
-        throw new Error('fetch question detail error');
+      try {
+        const res = await fetch(`/api/md/${id}`);
+        if (!res.ok) {
+          throw new Error('fetch question detail error');
+        }
+        const response = await res.json();
+        if (!response.success || !response.data) {
+          throw new Error('Invalid response format');
+        }
+        setQuestiondetail(response.data);
+      } catch (error) {
+        console.error('Error fetching question detail:', error);
+        toast.error('載入作業詳情失敗');
       }
-      const detail = await res.json() as QuestionDetailData;
-      setQuestiondetail(detail);
     };
 
     void fetchData();
@@ -40,13 +77,22 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
     const fetchUserProfile = async () => {
       if (userID === 'none' || !questionDetail) return;
 
-      const res = await fetch(`/api/profile/${userID}`);
-      if (!res.ok) {
-        throw new Error(`cannot find the user ${await res.json()}`);
-      }
-      const student = await res.json() as StudentProfileData;
+      try {
+        const res = await fetch(`/api/profile/${userID}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch user profile');
+        }
+        const response = await res.json();
+        if (!response.success || !response.data) {
+          throw new Error('Invalid user profile response');
+        }
+        const student = response.data.student as StudentData;
 
-      setSubmit(student.student.hw[questionDetail.detail.id] === '1' ? '1' : '0');
+        setSubmit(student.hw[questionDetail.detail.id] === '1' ? '1' : '0');
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        toast.error('載入用戶資料失敗');
+      }
     };
 
     void fetchUserProfile();
@@ -75,7 +121,7 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
 
       // TODO: code submission logic
       const content = await file.text();
-      const res = await fetch('/api/cpp/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'jjdl', code: content, input: questionDetail.detail.check_input }) });
+      const res = await fetch('/api/runcode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'jjdl', code: content, input: questionDetail.detail.check_input }) });
 
       if (!res.ok) {
         toast.error('發生錯誤，可能是你的檔案編碼問題或是副檔名錯誤(只支援utf-8，ascii code 不支援!)');
@@ -83,7 +129,13 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
         throw new Error(`check hw error ${await (res.json())}`);
       }
 
-      const receive = await res.json() as CheckHWResultData;
+      const response = await res.json();
+      if (!response.success || !response.data) {
+        setLoading(false);
+        throw new Error('Invalid response from code execution');
+      }
+
+      const receive = response.data as CheckHWResultData;
 
       if (receive.error) {
         setLoading(false);
@@ -98,7 +150,11 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
         throw new Error('輸出答案錯誤');
       }
       // check hw
-      const uploadResult = await fetch(`/api/profile/${userID}/update`, { method: 'POST', body: JSON.stringify({ type: 'hw', hw: questionDetail.detail.id, uploadData: '' }) });
+      const uploadResult = await fetch(`/api/profile/${userID}/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'hw', hw: questionDetail.detail.id, uploadData: '' })
+      });
 
       if (!uploadResult.ok) {
         setLoading(false);
@@ -133,20 +189,20 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
         <div className="flex flex-col gap-4">
           {isSubmit === '1'
             ? (
-                <Button disabled>
-                  <CheckCheck />
-                  已完成本作業
-                </Button>
-              )
+              <Button disabled>
+                <CheckCheck />
+                已完成本作業
+              </Button>
+            )
             : (
-                <Button onClick={() => void submit()} disabled={file == null || loading}>
-                  {loading
-                    ? (
-                        <Loader2 className="animate-spin" />
-                      )
-                    : '提交'}
-                </Button>
-              )}
+              <Button onClick={() => void submit()} disabled={file == null || loading}>
+                {loading
+                  ? (
+                    <Loader2 className="animate-spin" />
+                  )
+                  : '提交'}
+              </Button>
+            )}
           <div>
             已選擇檔案：
             {file?.name}

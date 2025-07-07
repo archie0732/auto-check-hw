@@ -1,88 +1,84 @@
 import { NextRequest } from 'next/server';
-import { existsSync, readFileSync } from 'fs';
-import { join, resolve } from 'path';
-import { QuestionDetailAPI } from '../../_model/apitype';
-import axios from 'axios';
-import { GitHubFileResponse } from '../../anno/_model/apitype';
+import { createGitHubAPI } from '@/lib/github';
+import { 
+  createSuccessResponse, 
+  createNotFoundResponse, 
+  createInternalErrorResponse,
+  validateEnvVars 
+} from '@/lib/api-utils';
 
-type Params = Readonly<{
-  params: Promise<{ slug: string }>;
-}>;
-
-function getFile(slug: string) {
-  const dataFolder = resolve('data', slug);
-
-  if (!existsSync(dataFolder)) {
-    return null;
-  }
-
-  const content = readFileSync(join(dataFolder, 'readme.md'), 'utf-8');
-  const detail = JSON.parse(readFileSync(join(dataFolder, 'info.json'), 'utf-8')) as QuestionDetailAPI;
-  detail.slug = slug;
-  detail.url = `/hw/${slug}`;
-  return { content, detail };
-}
-
-export async function GET(req: NextRequest, { params }: Params) {
-  const slug = (await params).slug;
-
-  const content = await fetchGithubMD(slug);
-  const detail = await fetchGithubInfo(slug);
-
-  // const data = getFile(slug);
-
-  if (!content || !detail) {
-    return Response.json('data not found', { status: 404 });
-  }
-
-  return Response.json({ content, detail }, { status: 200 });
-}
-
-const fetchGithubMD = async (slug: string) => {
-  const url = `https://api.github.com/repos/${process.env.OWNER}/${process.env.REPO}/contents/data/auto-check/${slug}/readme.md`;
-
-  console.log('url: ', url);
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { data } = await axios.get<GitHubFileResponse>(url, {
-      headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` },
-    });
+    const missingVars = validateEnvVars(['AUTOCHECKAPI_GITHUB', 'GITHUB_REPO_OWNER', 'GITHUB_REPO_NAME']);
+    if (missingVars.length > 0) {
+      return createInternalErrorResponse(
+        new Error(`Missing environment variables: ${missingVars.join(', ')}`)
+      );
+    }
 
-    const rowContent = data.content.replace(/\n/g, '');
-    const rowstring = Buffer.from(rowContent, 'base64').toString('utf-8');
+    const { id } = await params;
+    const github = createGitHubAPI();
 
-    return rowstring;
+    const [content, detail] = await Promise.allSettled([
+      fetchGithubMD(github, id),
+      fetchGithubInfo(github, id)
+    ]);
+
+    if (content.status === 'rejected' || detail.status === 'rejected') {
+      console.error('Failed to fetch data:', { content: content.status, detail: detail.status });
+      return createNotFoundResponse('Data not found');
+    }
+
+    if (!content.value || !detail.value) {
+      return createNotFoundResponse('Data not found');
+    }
+
+    detail.value.slug = id;
+    detail.value.url = `/hw/${id}`;
+
+    return createSuccessResponse({ content: content.value, detail: detail.value });
+  } catch (error) {
+    return createInternalErrorResponse(error);
   }
-  catch (error: unknown) {
-    if (axios.isAxiosError(error) && error.response?.status == 404) {
+}
+
+const fetchGithubMD = async (github: any, slug: string) => {
+  try {
+    const fileData = await github.getFile(`hw/${process.env.SEMESTER}/${slug}/readme.md`);
+    const content = Buffer.from(fileData.content, 'base64').toString('utf-8');
+    return content;
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('404')) {
       return null;
     }
-
     throw error;
   }
 };
 
-const fetchGithubInfo = async (slug: string) => {
-  const url = `https://api.github.com/repos/${process.env.OWNER}/${process.env.REPO}/contents/data/auto-check/${slug}/info.json`;
-
-  console.log('url: ', url);
+const fetchGithubInfo = async (github: any, slug: string) => {
   try {
-    const { data } = await axios.get<GitHubFileResponse>(url, {
-      headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` },
-    });
-
-    const rowContent = data.content.replace(/\n/g, '');
-    const rowstring = Buffer.from(rowContent, 'base64').toString('utf-8');
-    const decodedContent = JSON.parse(rowstring) as QuestionDetailAPI;
-
+    const fileData = await github.getFile(`hw/${process.env.SEMESTER}/${slug}/info.json`);
+    const content = Buffer.from(fileData.content, 'base64').toString('utf-8');
+    const decodedContent = JSON.parse(content);
     return decodedContent;
-  }
-  catch (error: unknown) {
-    if (axios.isAxiosError(error) && error.response?.status == 404) {
-      return { content: null, sha: null };
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('404')) {
+      return null;
     }
-
     throw error;
   }
 };
 
-void getFile;
+export interface HwDetailData {
+  content: string;
+  detail: {
+    name: string;
+    time: string;
+    id: number;
+    author: string;
+    check_input: string;
+    check_output: string;
+    slug: string;
+    url: string;
+  };
+}

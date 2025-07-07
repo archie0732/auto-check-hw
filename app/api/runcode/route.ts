@@ -1,5 +1,10 @@
 import axios from 'axios';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { 
+  createSuccessResponse, 
+  createBadRequestResponse, 
+  createInternalErrorResponse 
+} from '@/lib/api-utils';
 
 const PISTON_API = 'https://emkc.org/api/v2/piston/execute';
 
@@ -21,25 +26,29 @@ export interface PistonResponse {
   };
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest) {
   try {
     const { key, code, input } = (await req.json()) as CppRequestBody;
 
     if (!key || !code || !input) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return createBadRequestResponse('Missing required fields');
     }
 
     const result = await runCpp(code, input);
 
     if (result.run.stderr) {
-      return NextResponse.json({ error: 'Compilation or runtime error', stderr: result.run.stderr });
+      return createSuccessResponse({
+        error: 'Compilation or runtime error',
+        stderr: result.run.stderr
+      });
     }
 
-    return NextResponse.json({ userans: result.run.stdout.trim() });
+    return createSuccessResponse({
+      userans: result.run.stdout.trim()
+    });
   }
   catch (error) {
-    console.error('Error executing C++ code:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createInternalErrorResponse(error);
   }
 }
 
@@ -54,7 +63,15 @@ async function runCpp(code: string, input: string): Promise<PistonResponse> {
 
     return res.data;
   }
-  catch {
+  catch (error) {
     throw new Error('Error communicating with Piston API');
+  }
+}
+
+
+export interface RunCodeResponse {
+  success: boolean;
+  data: {
+    userans: string;
   }
 }

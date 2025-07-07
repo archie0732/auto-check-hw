@@ -4,12 +4,9 @@ import { Button } from '../../components/ui/button';
 import { useState } from 'react';
 
 import { AppStore } from '../../store/app';
+import { RunCodeResponse } from '../api/runcode/route';
 
-interface ApiResponse {
-  userans?: string;
-  error?: string;
-  stderr?: string;
-}
+
 
 const code = `#include <iostream> 
               using namespace std; 
@@ -28,20 +25,20 @@ export default function Page() {
     setError(null);
 
     try {
-      const res = await fetch('/api/cpp', {
+      const res = await fetch('/api/runcode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: 'aaa', code, input: `5 6` }),
       });
 
-      const result = await res.json() as ApiResponse;
+      const result = await res.json() as RunCodeResponse;
 
       if (!res.ok) {
-        setError(result.error ?? result.stderr ?? 'Unknown error');
+        setError('error');
         return;
       }
 
-      setData(result.userans ?? '');
+      setData(result.data.userans);
     }
     catch {
       setError('Network error');

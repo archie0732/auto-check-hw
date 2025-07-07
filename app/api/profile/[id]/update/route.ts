@@ -1,38 +1,136 @@
-import { fetchRemoteData, updateGitHubFile } from '@/app/api/_model/_lib/utils';
 import { NextRequest } from 'next/server';
+import { createGitHubAPI } from '@/lib/github';
+import { 
+  createSuccessResponse, 
+  createBadRequestResponse, 
+  createNotFoundResponse,
+  createInternalErrorResponse,
+  validateEnvVars 
+} from '@/lib/api-utils';
 
 type Params = Readonly<{
   params: Promise<{ id: string }>;
 }>;
+
+interface Student {
+  id: string;
+  intro: string;
+  avatar: string;
+  hw: string[];
+  name: string;
+  root: boolean;
+}
+
+interface ProfileData {
+  student: Student[];
+}
+
+interface UpdateRequest {
+  type: 'name' | 'intro' | 'avatar' | 'hw';
+  uploadData: string;
+  hw?: number;
+}
+
 export const POST = async (req: NextRequest, { params }: Params) => {
-  const id = (await params).id;
-  const edit = await req.json() as { type: 'name' | 'intro' | 'avatar' | 'hw'; uploadData: string; hw?: number };
+  try {
+    const missingVars = validateEnvVars(['AUTOCHECKAPI_GITHUB', 'GITHUB_REPO_OWNER', 'GITHUB_REPO_NAME']);
+    if (missingVars.length > 0) {
+      return createInternalErrorResponse(
+        new Error(`Missing environment variables: ${missingVars.join(', ')}`)
+      );
+    }
 
-  if (!edit.type) {
-    return Response.json('lost some params', { status: 400, statusText: 'lost some params' });
-  }
-  const { content, sha } = (await fetchRemoteData('data/auto-check.json'));
-  if (!content) {
-    return Response.json('fetch remote data fail', { status: 500, statusText: 'fetch remote data fail' });
-  }
+    const { id } = await params;
+    const edit = (await req.json()) as UpdateRequest & { hw?: string[] };
 
-  const student = content.student.find((students) => students.id === id);
+    // 支援批次更新 hw 陣列
+    if (Array.isArray(edit.hw)) {
+      const github = createGitHubAPI();
+      try {
+        const fileData = await github.getFile('user/profile.json');
+        const content = Buffer.from(fileData.content, 'base64').toString('utf-8');
+        const profileData = JSON.parse(content) as ProfileData;
+        const student = profileData.student.find((students: Student) => students.id === id);
+        if (!student) {
+          return createNotFoundResponse('Cannot find this student ID in list');
+        }
+        student.hw = edit.hw;
+        const updatedContent = JSON.stringify(profileData, null, 2);
+        await github.updateFile(
+          'user/profile.json',
+          updatedContent,
+          `Batch update hw for user: ${student.name} (${id})`,
+          'main',
+          fileData.sha
+        );
+        return createSuccessResponse({
+          message: 'Profile updated successfully',
+          student: student
+        });
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('404')) {
+          return createNotFoundResponse('Profile data not found');
+        }
+        throw error;
+      }
+    }
 
-  if (!student) {
-    return Response.json('cannot find this student id in list', { status: 500, statusText: 'cannot find student id inm list' });
-  }
+    if (!edit.type) {
+      return createBadRequestResponse('Missing required field: type');
+    }
 
-  if (edit.type === 'hw' && typeof edit.hw === 'number') {
-    student.hw[edit.hw] = '1';
-  }
-  else if (edit.type === 'hw') {
-    return Response.json('request params fail', { status: 400, statusText: 'request params fail' });
-  }
-  else {
-    student[edit.type] = edit.uploadData;
-  }
+    const github = createGitHubAPI();
 
-  await updateGitHubFile(JSON.stringify(content, null, 2), sha, 'data/auto-check.json');
+    try {
+      const fileData = await github.getFile('user/profile.json');
+      const content = Buffer.from(fileData.content, 'base64').toString('utf-8');
+      const profileData = JSON.parse(content) as ProfileData;
 
-  return Response.json('update profile success!', { status: 200 });
+      const student = profileData.student.find((students: Student) => students.id === id);
+
+      if (!student) {
+        return createNotFoundResponse('Cannot find this student ID in list');
+      }
+
+      if (edit.type === 'hw' && typeof edit.hw === 'number') {
+        student.hw[edit.hw] = edit.uploadData;
+      }
+      else if (edit.type === 'hw') {
+        return createBadRequestResponse('Missing hw index parameter');
+      }
+      else {
+        (student as any)[edit.type] = edit.uploadData;
+      }
+
+      const updatedContent = JSON.stringify(profileData, null, 2);
+      await github.updateFile(
+        'user/profile.json',
+        updatedContent,
+        `Update ${edit.type} for user: ${student.name} (${id})`,
+        'main',
+        fileData.sha
+      );
+
+      return createSuccessResponse({
+        message: 'Profile updated successfully',
+        student: student
+      });
+
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        return createNotFoundResponse('Profile data not found');
+      }
+      throw error;
+    }
+  } catch (error) {
+    return createInternalErrorResponse(error);
+  }
 };
+
+export interface UpdateProfileResponse {
+  success: boolean;
+  data: {
+    message: string;
+    student: Student;
+  }
+}
