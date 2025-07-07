@@ -12,7 +12,6 @@ import { AppStore } from '@/store/app';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { NextRequest } from 'next/server';
 
 interface ApiResponse {
   success: boolean;
@@ -127,17 +126,15 @@ function EditStudentHwStatus() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      for (let idx = 0; idx < hwStatus.length; idx++) {
-        const res = await fetch(`/api/profile/${studentId}/update`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'hw', hw: idx, uploadData: hwStatus[idx] }),
-        });
-        const result = await res.json();
-        if (!res.ok || !result.success) {
-          toast.error(result?.data?.message || `儲存失敗 (hw-${idx + 1})`);
-          return;
-        }
+      const res = await fetch(`/api/profile/${studentId}/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'hw', hw: hwStatus }),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        toast.error(result?.data?.message || '儲存失敗');
+        return;
       }
       toast.success('儲存成功');
     } catch (e: any) {
@@ -211,31 +208,57 @@ function EditStudentHwStatus() {
   );
 }
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function Page({ params }: PageProps) {
+  const [id, setId] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+  const [data, setData] = useState<HwDetailData | null>(null);
 
-  const res = await fetch(`${process.env.MYURL}/api/md/${id}`);
+  useEffect(() => {
+    const getParams = async () => {
+      try {
+        const { id: paramId } = await params;
+        setId(paramId);
 
-  if (!res.ok) {
-    throw new Error(`Request failed with status ${res.status}: ${await res.text()}`);
+        // 獲取作業數據
+        const res = await fetch(`/api/md/${paramId}`);
+        if (!res.ok) {
+          throw new Error(`Request failed with status ${res.status}: ${await res.text()}`);
+        }
+
+        const response = await res.json() as ApiResponse;
+        if (!response.success || !response.data) {
+          throw new Error('Failed to fetch homework details');
+        }
+
+        setData(response.data);
+      } catch (err: any) {
+        setError(err.message || '載入失敗');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getParams();
+  }, [params]);
+
+  if (loading) {
+    return (
+      <div className="my-8 flex items-center justify-center">
+        <div className="text-cyan-300">載入中...</div>
+      </div>
+    );
   }
 
-  const response = await res.json() as ApiResponse;
-
-  if (!response.success || !response.data) {
-    throw new Error('Failed to fetch homework details');
+  if (error || !data) {
+    return (
+      <div className="my-8 flex items-center justify-center">
+        <div className="text-red-400">錯誤: {error || '無法載入作業資料'}</div>
+      </div>
+    );
   }
 
-  const { content, detail } = response.data;
-
-  // 動態計算完成率
-  let percent = 0;
-  // Remove or comment out this block:
-  // if (Array.isArray(detail.hw)) {
-  //   const total = detail.hw.length;
-  //   const finished = detail.hw.filter((s: string) => s === '1').length;
-  //   percent = total > 0 ? Math.round((finished / total) * 100) : 0;
-  // }
+  const { content, detail } = data;
 
   return (
     <div className="my-8">
