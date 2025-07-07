@@ -34,6 +34,8 @@ export class GitHubAPI {
   }
 
   async getFile(path: string, branch: string = 'main') {
+    const fullUrl = `${this.baseURL}/repos/${this.config.owner}/${this.config.repo}/contents/${path}?ref=${branch}`;
+    console.log('🌐 GitHub API Request URL:', fullUrl);
     return this.request(`/repos/${this.config.owner}/${this.config.repo}/contents/${path}?ref=${branch}`);
   }
 

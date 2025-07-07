@@ -28,7 +28,7 @@ interface ProfileData {
 interface UpdateRequest {
   type: 'name' | 'intro' | 'avatar' | 'hw';
   uploadData: string;
-  hw?: number;
+  hw?: number | string; // 允許數字或字符串，因為 JSON 可能將數字轉換為字符串
 }
 
 export const POST = async (req: NextRequest, { params }: Params) => {
@@ -42,6 +42,14 @@ export const POST = async (req: NextRequest, { params }: Params) => {
 
     const { id } = await params;
     const edit = (await req.json()) as UpdateRequest & { hw?: string[] };
+    
+    console.log('📝 Received update request:', {
+      studentId: id,
+      editType: edit.type,
+      hwType: typeof edit.hw,
+      hwValue: edit.hw,
+      uploadData: edit.uploadData
+    });
 
     // 支援批次更新 hw 陣列
     if (Array.isArray(edit.hw)) {
@@ -92,8 +100,17 @@ export const POST = async (req: NextRequest, { params }: Params) => {
         return createNotFoundResponse('Cannot find this student ID in list');
       }
 
-      if (edit.type === 'hw' && typeof edit.hw === 'number') {
-        student.hw[edit.hw] = edit.uploadData;
+      if (edit.type === 'hw' && (typeof edit.hw === 'number' || typeof edit.hw === 'string')) {
+        const hwIndex = typeof edit.hw === 'string' ? parseInt(edit.hw) : edit.hw;
+        
+        console.log('📝 Updating homework status in GitHub:', {
+          studentId: id,
+          hwIndex: hwIndex,
+          oldValue: student.hw[hwIndex],
+          newValue: edit.uploadData,
+          hwArray: student.hw
+        });
+        student.hw[hwIndex] = edit.uploadData;
       }
       else if (edit.type === 'hw') {
         return createBadRequestResponse('Missing hw index parameter');

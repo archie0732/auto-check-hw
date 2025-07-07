@@ -1,12 +1,12 @@
 # GitHub API 設定 (使用新的 github.ts 工具)
 AUTOCHECKAPI_GITHUB=your_github_token_here
 GITHUB_REPO_OWNER=archie0732
-GITHUB_REPO_NAME=r7-api-storage
+GITHUB_REPO_NAME=auto-check-api
 
 # 應用設定
-SEMESTER=last/first
+SEMESTER=last
 
 # 舊的設定 (如果還在使用)
 OWNER=archie0732
-REPO=r7-api-storage
+REPO=auto-check-api
 GITHUB_TOKEN=your_github_token_here 

@@ -42,6 +42,30 @@ interface CheckHWResultData {
   error?: string;
 }
 
+// 測試函數：驗證作業編號轉換邏輯
+const testHomeworkIndexCalculation = () => {
+  const testCases = [
+    'hw-test', 'hw-1', 'hw-2', 'hw-3', 'hw-4', 'hw-5',
+    'hw-6', 'hw-7', 'hw-8', 'hw-9', 'hw-10'
+  ];
+
+  console.log('🧪 Testing homework index calculation:');
+  testCases.forEach(testId => {
+    let hwIndex: number;
+    let hwNumber: number;
+
+    if (testId === 'hw-test') {
+      hwIndex = 0;
+      hwNumber = 0;
+    } else {
+      hwNumber = parseInt(testId.replace('hw-', ''));
+      hwIndex = hwNumber; // hw-1 對應索引 1，hw-2 對應索引 2，以此類推
+    }
+
+    console.log(`  ${testId} -> hwNumber: ${hwNumber}, hwIndex: ${hwIndex}`);
+  });
+};
+
 export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
   const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState('');
@@ -53,6 +77,11 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
   const router = useRouter();
 
   useEffect(() => {
+    // 在開發環境中運行測試
+    if (process.env.NODE_ENV === 'development') {
+      testHomeworkIndexCalculation();
+    }
+
     const fetchData = async () => {
       try {
         const res = await fetch(`/api/md/${id}`);
@@ -75,7 +104,7 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (userID === 'none' || !questionDetail) return;
+      if (userID === 'none' || !questionDetail || !id || id === '') return;
 
       try {
         const res = await fetch(`/api/profile/${userID}`);
@@ -88,7 +117,35 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
         }
         const student = response.data.student as StudentData;
 
-        setSubmit(student.hw[questionDetail.detail.id] === '1' ? '1' : '0');
+        // 使用作業編號來確定索引
+        let hwIndex: number;
+        let hwNumber: number;
+
+        if (id === 'hw-test') {
+          hwIndex = 0; // hw-test 對應索引 0
+          hwNumber = 0; // 為了顯示目的
+        } else {
+          hwNumber = parseInt(id.replace('hw-', ''));
+          if (isNaN(hwNumber)) {
+            console.error('Invalid homework number format:', id);
+            return;
+          }
+          if (hwNumber < 1 || hwNumber > 10) {
+            console.error(`Homework number must be between 1 and 10, got: ${hwNumber}`);
+            return;
+          }
+          hwIndex = hwNumber; // hw-1 對應索引 1，hw-2 對應索引 2，以此類推
+        }
+
+        console.log('📊 Checking homework status:', {
+          hwId: id,
+          hwNumber,
+          hwIndex,
+          currentStatus: student.hw[hwIndex],
+          allHwStatus: student.hw
+        });
+
+        setSubmit(student.hw[hwIndex] === '1' ? '1' : '0');
       } catch (error) {
         console.error('Error fetching user profile:', error);
         toast.error('載入用戶資料失敗');
@@ -96,7 +153,7 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
     };
 
     void fetchUserProfile();
-  }, [userID, questionDetail]);
+  }, [userID, questionDetail, id]);
 
   const onFileSelect = (file: File) => {
     setFile(file);
@@ -108,6 +165,7 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
   const submit = () => {
     if (!file) return;
     if (!questionDetail) return;
+    if (!id || id === '') return; // 防止空 ID
 
     const checkHW = async () => {
       const time = new Date();
@@ -150,10 +208,52 @@ export const HandoutTab: React.FC<HandoutData> = ({ id }) => {
         throw new Error('輸出答案錯誤');
       }
       // check hw
+      console.log('🔍 Debug info before calculation:', {
+        id,
+        idType: typeof id,
+        idValue: id
+      });
+
+      if (!id || typeof id !== 'string') {
+        throw new Error('Invalid homework ID');
+      }
+
+      // 處理特殊的作業名稱
+      let hwIndex: number;
+      let hwNumber: number;
+
+      if (id === 'hw-test') {
+        hwIndex = 0; // hw-test 對應索引 0
+        hwNumber = 0; // 為了顯示目的
+      } else {
+        hwNumber = parseInt(id.replace('hw-', ''));
+        if (isNaN(hwNumber)) {
+          throw new Error('Invalid homework number format');
+        }
+        if (hwNumber < 1 || hwNumber > 10) {
+          throw new Error(`Homework number must be between 1 and 10, got: ${hwNumber}`);
+        }
+        hwIndex = hwNumber; // hw-1 對應索引 1，hw-2 對應索引 2，以此類推
+      }
+
+      console.log('📝 Updating homework status:', {
+        userID,
+        hwId: id,
+        hwNumber,
+        hwIndex,
+        hwIndexType: typeof hwIndex,
+        hwName: questionDetail.detail.name,
+        uploadData: '1'
+      });
+
       const uploadResult = await fetch(`/api/profile/${userID}/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'hw', hw: questionDetail.detail.id, uploadData: '' })
+        body: JSON.stringify({
+          type: 'hw',
+          hw: Number(hwIndex), // 確保是數字類型
+          uploadData: '1'
+        })
       });
 
       if (!uploadResult.ok) {
