@@ -203,7 +203,7 @@ export default async function Home() {
               </div>
             </Link>
 
-            <Link href="/test" className="group relative">
+            <Link href="/slove" className="group relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl blur opacity-50 group-hover:opacity-75 transition duration-300"></div>
               <div className="relative bg-black/60 backdrop-blur-sm rounded-2xl p-8 border border-green-500/30 hover:border-green-400/60 transition-all duration-300 hover:scale-105 group-hover:shadow-2xl group-hover:shadow-green-500/25 cyber-button">
                 <div className="flex flex-col items-center text-center">
