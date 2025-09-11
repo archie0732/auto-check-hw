@@ -88,7 +88,7 @@ export function AppHeader() {
               >
                 <div className="absolute -inset-1 bg-gradient-to-r from-cyan-600 via-purple-600 to-blue-600 rounded-lg blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
                 <span className="relative text-white group-hover:text-cyan-300 transition-colors">
-                  作業繳交
+                  R7 Code
                 </span>
               </Link>
 

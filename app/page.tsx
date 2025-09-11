@@ -95,7 +95,7 @@ export default async function Home() {
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   </div>
                   <div className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-3 neon-text">
-                    Welcome To Auto Check HomeWork
+                    Welcome To R7 Code
                   </div>
                   <div className="text-lg text-gray-300 flex items-center gap-2">
                     <span>Powered by</span>

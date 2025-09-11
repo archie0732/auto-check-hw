@@ -8,7 +8,7 @@ export function AppFooter() {
     `}
     >
       <div className="flex justify-center">
-        <span>hw-check &copy; 2025</span>
+        <span>R7 Code &copy; 2025</span>
       </div>
       <div className="flex justify-center">
         <div className="rounded-full border-2 border-gray-600 p-0.5">
