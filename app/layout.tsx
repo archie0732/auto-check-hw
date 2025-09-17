@@ -19,8 +19,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Auto Check HomeWork',
-  description: 'NMSL',
+  title: 'R7 CODE',
+  description: 'to promote u code skill!',
+  openGraph: {
+    title: 'R7 CODE',
+    description: 'to promote u code skill',
+    images: 'https://i.ytimg.com/vi/WmjDT_EA3zE/maxresdefault.jpg',
+  }
 };
 
 export default function RootLayout({
